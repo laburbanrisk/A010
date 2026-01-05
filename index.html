@@ -39,6 +39,14 @@
     /* NAVBAR ACTIVE STATE */
     .nav-btn.active { @apply text-brand-blue; }
     .nav-btn.active i { @apply animate-bounce; }
+    
+    /* TABS */
+    .tab-btn { @apply bg-white px-4 py-2 rounded-full border border-slate-200 text-xs font-bold whitespace-nowrap shadow-sm hover:border-brand-blue transition text-slate-500; }
+    .tab-btn.active { @apply bg-brand-blue text-white border-brand-blue shadow-md; }
+    
+    /* SCROLL */
+    .hide-scroll::-webkit-scrollbar { display: none; }
+    .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 </head>
 <body class="pb-24 md:pb-0 bg-slate-100 text-slate-800">
@@ -60,10 +68,6 @@
         <button onclick="nav('a010')" id="btn-a010" class="nav-btn flex flex-col md:flex-row items-center gap-1 text-slate-400 hover:text-brand-blue transition p-2">
            <i class="fa-solid fa-ruler-combined text-xl md:text-lg"></i>
            <span class="text-[10px] md:text-sm font-bold">Diseño A.010</span>
-        </button>
-        <button onclick="nav('info')" id="btn-info" class="nav-btn flex flex-col md:flex-row items-center gap-1 text-slate-400 hover:text-brand-blue transition p-2">
-           <i class="fa-solid fa-circle-info text-xl md:text-lg"></i>
-           <span class="text-[10px] md:text-sm font-bold">Info</span>
         </button>
      </div>
   </nav>
@@ -88,59 +92,107 @@
     </div>
   </section>
 
-  <section id="view-a010" class="view-section max-w-5xl mx-auto mt-4 md:mt-24 p-4 pb-24">
+  <section id="view-a010" class="view-section max-w-6xl mx-auto mt-4 md:mt-24 p-4 pb-24">
     
     <div class="mb-6">
-       <h2 class="text-2xl font-bold text-slate-800">Condiciones de Diseño</h2>
-       <p class="text-xs text-slate-500">Herramientas de cálculo según Norma Técnica A.010</p>
+       <h2 class="text-2xl font-bold text-slate-800">Calculadora Normativa A.010</h2>
+       <p class="text-xs text-slate-500">Herramientas de validación de espacios y circulaciones.</p>
     </div>
 
     <div class="flex overflow-x-auto gap-2 mb-6 pb-2 hide-scroll">
-       <button onclick="switchTab('stair')" class="tab-btn active bg-white px-4 py-2 rounded-full border border-slate-200 text-xs font-bold whitespace-nowrap shadow-sm hover:border-brand-blue focus:bg-brand-blue focus:text-white transition">
-         <i class="fa-solid fa-stairs mr-2"></i>Escaleras (Art. 23)
-       </button>
-       <button onclick="switchTab('park')" class="tab-btn bg-white px-4 py-2 rounded-full border border-slate-200 text-xs font-bold whitespace-nowrap shadow-sm hover:border-brand-blue focus:bg-brand-blue focus:text-white transition">
-         <i class="fa-solid fa-car mr-2"></i>Estacionamientos (Art. 54)
-       </button>
-       <button onclick="switchTab('light')" class="tab-btn bg-white px-4 py-2 rounded-full border border-slate-200 text-xs font-bold whitespace-nowrap shadow-sm hover:border-brand-blue focus:bg-brand-blue focus:text-white transition">
-         <i class="fa-regular fa-sun mr-2"></i>Pozos de Luz (Art. 19)
-       </button>
+       <button onclick="switchTab('pasajes')" class="tab-btn active"><i class="fa-solid fa-person-walking mr-2"></i>Pasajes</button>
+       <button onclick="switchTab('escaleras')" class="tab-btn"><i class="fa-solid fa-stairs mr-2"></i>Escaleras (5 Pisos)</button>
+       <button onclick="switchTab('estaciona')" class="tab-btn"><i class="fa-solid fa-car mr-2"></i>Estacionamientos</button>
+       <button onclick="switchTab('ductos')" class="tab-btn"><i class="fa-solid fa-wind mr-2"></i>Ductos y Luz</button>
     </div>
 
-    <div id="tab-stair" class="tab-content grid md:grid-cols-12 gap-6">
-       <div class="md:col-span-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
-          <div>
-             <label class="label-box">Uso del Edificio</label>
-             <select id="st_uso" onchange="calcStair()" class="input-box">
-                <option value="vivienda">Vivienda (Residencial)</option>
-                <option value="oficina">Oficinas / Comercio</option>
-                <option value="salud">Salud / Educación</option>
-                <option value="industria">Industria</option>
-             </select>
-          </div>
-          <div class="grid grid-cols-2 gap-4">
-             <div>
-                <label class="label-box">Paso (m)</label>
-                <input type="number" id="st_paso" value="0.25" step="0.01" oninput="calcStair()" class="input-box text-center">
-             </div>
-             <div>
-                <label class="label-box">Contrapaso (m)</label>
-                <input type="number" id="st_contra" value="0.17" step="0.01" oninput="calcStair()" class="input-box text-center">
-             </div>
-          </div>
-          <div id="st_msg" class="text-xs p-3 rounded-lg font-bold bg-slate-50 text-slate-500 border border-slate-100">
-             Validando normativa...
-          </div>
-       </div>
-       <div class="md:col-span-8 bg-slate-900 rounded-2xl p-6 flex items-center justify-center relative min-h-[300px] border-4 border-slate-800">
-          <div class="absolute top-4 left-4 text-white/50 text-[10px] font-mono">CORTE ESQUEMÁTICO</div>
-          <svg id="svg_stair" viewBox="0 0 300 200" class="w-full h-full max-h-[300px] drop-shadow-2xl"></svg>
-       </div>
+    <div id="tab-pasajes" class="tab-content grid md:grid-cols-12 gap-6">
+        <div class="md:col-span-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+            <div>
+                <label class="label-box">Uso del Pasaje (Art. 20)</label>
+                <select id="pas_uso" onchange="calcPasaje()" class="input-box">
+                    <option value="viv_int">Vivienda (Interior)</option>
+                    <option value="viv_com">Vivienda (Área Común)</option>
+                    <option value="oficina">Oficinas / Comercio</option>
+                    <option value="salud">Salud (Pacientes)</option>
+                    <option value="edu">Educación</option>
+                </select>
+            </div>
+            <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 text-center">
+                <span class="block text-[10px] text-slate-500 uppercase">Ancho Mínimo Requerido</span>
+                <span id="pas_res" class="text-3xl font-bold text-brand-blue">0.90 m</span>
+            </div>
+        </div>
+        <div class="md:col-span-8 bg-slate-100 rounded-2xl p-6 flex flex-col items-center justify-center relative border border-slate-200">
+            <div class="relative h-64 bg-slate-300 border-x-4 border-slate-500 shadow-inner flex items-end justify-center transition-all duration-500" id="pas_box" style="width: 180px;">
+                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-slate-400 opacity-20 text-6xl">
+                    <i class="fa-solid fa-arrows-left-right"></i>
+                </div>
+                <i class="fa-solid fa-person text-6xl text-brand-blue mb-4 drop-shadow-lg"></i>
+                <div class="absolute -top-8 w-full border-b border-slate-800 text-center">
+                    <span id="pas_cota" class="bg-slate-100 px-2 text-xs font-bold font-mono">0.90m</span>
+                </div>
+            </div>
+            <p class="mt-4 text-[10px] text-slate-500 max-w-md text-center">
+                *Dimensiones libres entre paramentos. No incluye elementos salientes como columnas (máx 15cm).
+            </p>
+        </div>
     </div>
 
-    <div id="tab-park" class="tab-content hidden grid md:grid-cols-12 gap-6">
-       <div class="md:col-span-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
-          <div>
+    <div id="tab-escaleras" class="tab-content hidden grid md:grid-cols-12 gap-6">
+        <div class="md:col-span-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4 h-fit">
+            <h3 class="text-xs font-bold text-brand-blue uppercase border-b border-slate-100 pb-2">Configuración</h3>
+            <div>
+                <label class="label-box">Tipo de Escalera</label>
+                <select id="esc_tipo" onchange="calcEscalera()" class="input-box">
+                    <option value="integrada">Integrada (Abierta)</option>
+                    <option value="b1">Protegida (Vestíbulo B1)</option>
+                    <option value="b2">Presurizada (B2)</option>
+                </select>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="label-box">Pisos</label>
+                    <select id="esc_pisos" onchange="calcEscalera()" class="input-box text-center">
+                        <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+                        <option value="4">4</option><option value="5" selected>5</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="label-box">Altura Piso (m)</label>
+                    <input type="number" id="esc_h" value="2.70" step="0.05" onchange="calcEscalera()" class="input-box text-center">
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="label-box">Paso (m)</label>
+                    <input type="number" id="esc_p" value="0.25" step="0.01" onchange="calcEscalera()" class="input-box text-center">
+                </div>
+                <div>
+                    <label class="label-box">Ancho Tramo (m)</label>
+                    <input type="number" id="esc_ancho" value="1.20" step="0.10" onchange="calcEscalera()" class="input-box text-center">
+                </div>
+            </div>
+            
+            <div class="bg-brand-gray p-3 rounded-lg border border-slate-200 text-xs space-y-2">
+                <div class="flex justify-between"><span>Contrapaso Calc:</span> <span id="res_cp" class="font-bold">--</span></div>
+                <div class="flex justify-between"><span>Pasos x Piso:</span> <span id="res_steps" class="font-bold">--</span></div>
+                <div class="flex justify-between"><span>Long. en Planta:</span> <span id="res_long" class="font-bold text-brand-blue">--</span></div>
+            </div>
+        </div>
+
+        <div class="md:col-span-8 bg-slate-900 rounded-2xl p-6 relative min-h-[500px] border-4 border-slate-800 flex flex-col">
+            <div class="absolute top-4 left-4 text-white/50 text-[10px] font-mono z-10">SIMULACIÓN DE SECCIÓN (CORTE)</div>
+            
+            <div class="flex-1 overflow-y-auto custom-scroll flex items-center justify-center bg-[url('https://www.transparenttextures.com/patterns/blueprint-grid.png')]">
+                <svg id="svg_stair" class="w-full h-full min-h-[400px]" preserveAspectRatio="xMidYMid meet"></svg>
+            </div>
+        </div>
+    </div>
+
+    <div id="tab-estaciona" class="tab-content hidden grid md:grid-cols-12 gap-6">
+        <div class="md:col-span-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+            <div>
              <label class="label-box">Tipo de Usuario</label>
              <select id="pk_uso" onchange="calcPark()" class="input-box">
                 <option value="privado">Privado (Vivienda/Oficina)</option>
@@ -166,77 +218,77 @@
              </div>
              <div class="text-[10px] text-slate-400">Calle de maniobra mínima (Gráfico D)</div>
           </div>
-       </div>
-       <div class="md:col-span-8 bg-slate-800 rounded-2xl p-6 flex items-center justify-center relative min-h-[300px] overflow-hidden">
-          <div class="absolute inset-0 grid grid-cols-12 grid-rows-12 opacity-10 pointer-events-none">
-             <div class="col-span-1 border-r border-white"></div><div class="col-span-1 border-r border-white"></div>
+        </div>
+        <div class="md:col-span-8 bg-slate-800 rounded-2xl p-6 flex items-center justify-center relative min-h-[300px] overflow-hidden">
+             <div id="pk_canvas" class="relative transition-all duration-500 border-2 border-dashed border-white/40 flex items-center justify-center bg-brand-blue/20">
+                 <i class="fa-solid fa-car text-white/50 text-2xl"></i>
+                 <div class="absolute -top-6 w-full text-center text-xs text-brand-yellow font-mono font-bold"><span id="dim_w"></span>m</div>
+                 <div class="absolute -left-10 top-1/2 -translate-y-1/2 -rotate-90 text-xs text-brand-yellow font-mono font-bold"><span id="dim_l"></span>m</div>
              </div>
-          <div id="pk_canvas" class="relative transition-all duration-500 border-2 border-dashed border-white/40 flex items-center justify-center bg-brand-blue/20">
-             <i class="fa-solid fa-car text-white/50 text-2xl"></i>
-             <div class="absolute -top-6 w-full text-center text-xs text-brand-yellow font-mono font-bold"><span id="dim_w"></span>m</div>
-             <div class="absolute -left-10 top-1/2 -translate-y-1/2 -rotate-90 text-xs text-brand-yellow font-mono font-bold"><span id="dim_l"></span>m</div>
-          </div>
-       </div>
+        </div>
     </div>
 
-    <div id="tab-light" class="tab-content hidden grid md:grid-cols-12 gap-6">
-       <div class="md:col-span-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
-          <div class="bg-yellow-50 p-3 rounded-lg border border-yellow-200 mb-4">
-             <p class="text-[10px] text-yellow-800 leading-tight">
-                <i class="fa-solid fa-triangle-exclamation mr-1"></i>
-                Para viviendas en edificios multifamiliares, las dimensiones del pozo de luz se calculan en base a la altura total (H).
+    <div id="tab-ductos" class="tab-content hidden grid md:grid-cols-12 gap-6">
+        <div class="md:col-span-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+            <div>
+                <label class="label-box">Tipo de Espacio</label>
+                <select id="duc_tipo" onchange="calcDucto()" class="input-box">
+                    <option value="luz">Pozo de Luz (Iluminación)</option>
+                    <option value="vent_mec">Ventilación Mecánica (Ducto)</option>
+                </select>
+            </div>
+            <div>
+                <label class="label-box">Altura Edificación (m)</label>
+                <input type="number" id="duc_h" value="15.00" oninput="calcDucto()" class="input-box text-center">
+            </div>
+            
+            <div id="res_ducto_box" class="bg-yellow-50 p-4 rounded-xl border border-yellow-100 text-center">
+                <span class="block text-[10px] text-slate-500 uppercase">Lado Mínimo (Art. 19)</span>
+                <span id="res_duc_lado" class="text-3xl font-bold text-brand-blue">--</span>
+                <div class="text-xs text-slate-500 mt-2">Área Mín: <span id="res_duc_area" class="font-bold">--</span></div>
+            </div>
+        </div>
+        
+        <div class="md:col-span-8 bg-white rounded-2xl p-6 flex flex-col items-center justify-center border border-slate-200">
+             <div class="relative transition-all duration-500 border-4 border-slate-800 bg-sky-100 flex items-center justify-center shadow-inner" id="duc_visual" style="width: 200px; height: 200px;">
+                 <i class="fa-regular fa-sun text-4xl text-yellow-500 animate-pulse" id="duc_icon"></i>
+                 <div class="absolute -bottom-8 w-full text-center text-xs font-mono font-bold text-slate-600">L = <span id="visual_l"></span>m</div>
+             </div>
+             <p class="mt-10 text-[10px] text-slate-400 italic text-center">
+                 "Para viviendas en edificaciones multifamiliares, las dimensiones del pozo de luz se calculan en base a la altura total de la edificación."
              </p>
-          </div>
-          <div>
-             <label class="label-box">Altura Total de Edificación (m)</label>
-             <input type="number" id="pl_h" value="15.00" oninput="calcLight()" class="input-box text-center text-lg">
-          </div>
-          <div class="grid grid-cols-2 gap-4 pt-4 border-t border-slate-100">
-             <div class="text-center">
-                <span class="block text-[10px] text-slate-400 uppercase">Lado Mínimo</span>
-                <span id="res_pl_lado" class="text-2xl font-bold text-brand-blue">--</span>
-             </div>
-             <div class="text-center">
-                <span class="block text-[10px] text-slate-400 uppercase">Área Mínima</span>
-                <span id="res_pl_area" class="text-xl font-bold text-slate-600">--</span>
-             </div>
-          </div>
-       </div>
-       
-       <div class="md:col-span-8 bg-white rounded-2xl p-6 flex flex-col items-center justify-center border border-slate-200">
-          <div class="relative w-48 h-48 bg-sky-100 border-2 border-sky-300 flex items-center justify-center mb-4 transition-all duration-300" id="pl_box">
-             <i class="fa-regular fa-sun text-4xl text-yellow-400 animate-pulse"></i>
-             <div class="absolute -bottom-6 w-full text-center text-xs font-bold text-slate-500">L = H / 3</div>
-          </div>
-          <p class="text-xs text-slate-400 text-center max-w-sm">
-             Art. 19: Para vivienda, el lado mínimo no será menor a 2.20 m ni a 1/3 de la altura del paramento más bajo.
-          </p>
-       </div>
+        </div>
     </div>
 
   </section>
 
   <script>
-    /* ---- MOTOR DE NAVEGACIÓN ---- */
+    /* -----------------------------------
+       1. SISTEMA DE NAVEGACIÓN
+       ----------------------------------- */
     function nav(viewId) {
        document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
        document.getElementById('view-' + viewId).classList.add('active');
        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
        document.getElementById('btn-' + viewId)?.classList.add('active');
-       window.scrollTo(0,0);
     }
 
     function switchTab(tabId) {
        document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
        document.getElementById('tab-' + tabId).classList.remove('hidden');
+       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+       event.currentTarget.classList.add('active');
        
-       // Calc inicial al abrir tab
-       if(tabId==='stair') calcStair();
-       if(tabId==='park') calcPark();
-       if(tabId==='light') calcLight();
+       // Trigger recalcs
+       if(tabId==='pasajes') calcPasaje();
+       if(tabId==='escaleras') calcEscalera();
+       if(tabId==='estaciona') calcPark();
+       if(tabId==='ductos') calcDucto();
     }
 
-    /* ---- FASE 1: GLOSARIO G.040 (DATA) ---- */
+    /* -----------------------------------
+       2. FASE 1: GLOSARIO G.040 (DATA)
+       ----------------------------------- */
     const G040_DATA = [
       { id: "acabados", t: "Acabados", c: "Constructivo", d: "Materiales que se instalan o forman parte del recubrimiento final en una infraestructura...", icon: "fa-paint-roller" },
       { id: "accesibilidad", t: "Accesibilidad", c: "Funcional", d: "Condición de acceso que presta la infraestructura para facilitar la movilidad autónoma.", icon: "fa-wheelchair" },
@@ -259,143 +311,199 @@
     function loadTerm(id) {
        const card = document.getElementById('defCard');
        if(!id) { card.classList.add('hidden'); return; }
-       
        const d = G040_DATA.find(x => x.id === id);
        document.getElementById('defCat').innerText = d.c;
        document.getElementById('defTitle').innerText = d.t;
        document.getElementById('defText').innerText = d.d;
-       
        const box = document.getElementById('graphicContainer');
        if(d.svg) box.innerHTML = d.svg;
        else box.innerHTML = `<i class="fa-solid ${d.icon} text-6xl text-slate-300"></i>`;
-       
        card.classList.remove('hidden');
     }
 
-    /* ---- FASE 2: LÓGICA DE CÁLCULO A.010 ---- */
+    /* -----------------------------------
+       3. FASE 2: CALCULADORAS A.010
+       ----------------------------------- */
+       
+    // --- CALC 1: PASAJES ---
+    function calcPasaje() {
+        const uso = document.getElementById('pas_uso').value;
+        let w = 0.90;
+        
+        // Reglas Art. 20
+        if(uso === 'viv_int') w = 0.90;
+        else if(uso === 'viv_com') w = 1.20;
+        else if(uso === 'oficina') w = 1.20;
+        else if(uso === 'salud') w = 1.80; // A.050 requiere min 1.80 a 2.20
+        else if(uso === 'edu') w = 1.20;
 
-    // 1. ESCALERAS (Art. 23)
-    function calcStair() {
-       const uso = document.getElementById('st_uso').value;
-       const P = parseFloat(document.getElementById('st_paso').value);
-       const CP = parseFloat(document.getElementById('st_contra').value);
-       const msg = document.getElementById('st_msg');
-       
-       // Reglas (RM 191-2021)
-       let minP = 0.25, maxCP = 0.18;
-       if(uso === 'oficina') minP = 0.28;
-       if(uso === 'salud') minP = 0.30;
-       if(uso === 'industria') minP = 0.25;
-
-       // Validar
-       let status = true;
-       let errors = [];
-       if(P < minP) { status=false; errors.push(`Paso mín ${minP}m`); }
-       if(CP > maxCP) { status=false; errors.push(`Contrapaso máx ${maxCP}m`); }
-       
-       // Feedback UI
-       if(status) {
-          msg.className = "text-xs p-3 rounded-lg font-bold bg-green-50 text-green-600 border border-green-200";
-          msg.innerHTML = `<i class="fa-solid fa-check mr-1"></i> CUMPLE NORMA A.010`;
-       } else {
-          msg.className = "text-xs p-3 rounded-lg font-bold bg-red-50 text-red-600 border border-red-200";
-          msg.innerHTML = `<i class="fa-solid fa-xmark mr-1"></i> NO CUMPLE: ${errors.join(', ')}`;
-       }
-
-       // Dibujar SVG Dinámico
-       const svg = document.getElementById('svg_stair');
-       const scale = 300; // factor visual
-       const pVis = P * scale; 
-       const cpVis = CP * scale;
-       
-       // Color del path según estado
-       const strokeColor = status ? '#FFC72C' : '#DA291C'; // Amarillo o Rojo
-       
-       svg.innerHTML = `
-          <defs><pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="white" stroke-opacity="0.1"/></pattern></defs>
-          <rect width="100%" height="100%" fill="url(#grid)" />
-          <path d="M50,150 L${50+pVis},150 L${50+pVis},${150-cpVis} L${50+pVis*2},${150-cpVis} L${50+pVis*2},${150-cpVis*2}" 
-                fill="none" stroke="${strokeColor}" stroke-width="4" stroke-linecap="round" />
-          <text x="${50+pVis/2}" y="170" fill="white" font-size="10" text-anchor="middle">P=${P}</text>
-          <text x="${50+pVis+10}" y="${150-cpVis/2}" fill="white" font-size="10">CP=${CP}</text>
-       `;
+        document.getElementById('pas_res').innerText = w.toFixed(2) + " m";
+        document.getElementById('pas_cota').innerText = w.toFixed(2) + " m";
+        
+        // Animar caja
+        const box = document.getElementById('pas_box');
+        const scale = w * 200; // Factor visual
+        box.style.width = Math.min(Math.max(scale, 100), 300) + "px";
     }
 
-    // 2. ESTACIONAMIENTOS (Art. 54)
+    // --- CALC 2: ESCALERAS MULTINIVEL ---
+    function calcEscalera() {
+        const pisos = parseInt(document.getElementById('esc_pisos').value);
+        const h = parseFloat(document.getElementById('esc_h').value);
+        const p = parseFloat(document.getElementById('esc_p').value);
+        const ancho = parseFloat(document.getElementById('esc_ancho').value);
+        const tipo = document.getElementById('esc_tipo').value;
+
+        // Cálculos Matemáticos
+        // 1. Número de contrapasos (CP) por piso
+        // Regla: CP max 0.18. Buscamos entero superior.
+        const numCP = Math.ceil(h / 0.18);
+        const realCP = h / numCP;
+        const numPasos = numCP - 1;
+        
+        // 2. Longitud horizontal por tramo (asumiendo lineal para esquema)
+        // Incluye descanso de 1.20m por norma si son más de 17 pasos (aquí simplificado por piso)
+        const longHuella = numPasos * p;
+        const descanso = 1.20; 
+        const totalLong = longHuella + descanso;
+
+        // Render Datos
+        document.getElementById('res_cp').innerText = realCP.toFixed(3) + " m";
+        document.getElementById('res_steps').innerText = numPasos;
+        document.getElementById('res_long').innerText = totalLong.toFixed(2) + " m";
+
+        // GENERACIÓN GRÁFICO SVG (EDIFICIO)
+        const svg = document.getElementById('svg_stair');
+        const scaleX = 40; // Pixels por metro X
+        const scaleY = 40; // Pixels por metro Y
+        
+        let svgContent = `<defs><pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="#ffffff" stroke-opacity="0.1"/></pattern></defs><rect width="100%" height="100%" fill="#0f172a"/>`;
+        
+        // Dibujar cada piso
+        let currentY = 50; // Margen superior
+        let startX = 50;
+        
+        // Altura total edificio visual
+        const totalHVisual = pisos * h * scaleY;
+        svg.setAttribute('viewBox', `0 0 ${startX + totalLong*scaleX + 100} ${totalHVisual + 100}`);
+
+        for(let i = pisos; i >= 1; i--) {
+             let floorY = (pisos - i + 1) * h * scaleY + 20;
+             
+             // Línea de Piso
+             svgContent += `<line x1="20" y1="${floorY}" x2="${startX + totalLong*scaleX + 50}" y2="${floorY}" stroke="#334155" stroke-width="2"/>`;
+             svgContent += `<text x="25" y="${floorY - 5}" fill="#64748b" font-size="10" font-family="monospace">NIVEL ${i}</text>`;
+             
+             // Dibujar Escalera (Zig Zag simplificado)
+             // Start Point (Abajo) -> End Point (Arriba)
+             let x1 = startX;
+             let y1 = floorY;
+             let x2 = startX + longHuella * scaleX;
+             let y2 = floorY - (h * scaleY);
+             
+             // Color según tipo
+             let color = (tipo === 'integrada') ? '#FFC72C' : (tipo === 'b1' ? '#38bdf8' : '#DA291C');
+             
+             // Rampa visual simplificada para escala macro
+             svgContent += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="4" stroke-linecap="round"/>`;
+             
+             // Descanso
+             svgContent += `<line x1="${x2}" y1="${y2}" x2="${x2 + descanso*scaleX}" y2="${y2}" stroke="${color}" stroke-width="4"/>`;
+             
+             // Baranda
+             svgContent += `<line x1="${x1}" y1="${y1-10}" x2="${x2}" y2="${y2-10}" stroke="white" stroke-width="1" stroke-opacity="0.5" stroke-dasharray="4,2"/>`;
+             
+             // Conexión vertical si no es el último
+             if(i > 1) {
+                 // Linea punteada de retorno
+                 svgContent += `<line x1="${x2 + descanso*scaleX}" y1="${y2}" x2="${startX}" y2="${y2}" stroke="#475569" stroke-width="1" stroke-dasharray="2,2"/>`;
+             }
+        }
+        
+        svg.innerHTML = svgContent;
+    }
+
+    // --- CALC 3: ESTACIONAMIENTOS ---
     function calcPark() {
        const uso = document.getElementById('pk_uso').value;
        const disp = document.getElementById('pk_disp').value;
        const ang = parseInt(document.getElementById('pk_deg').value);
-       
        document.getElementById('pk_deg_val').innerText = ang;
        
-       // Dimensiones Cajón (Cuadro N° 03 y 04)
        let w = 2.50, l = 5.00;
-       
        if(uso === 'privado') {
           if(disp === 'ind') w = 2.70;
           else if(disp === 'cont') w = 2.50;
           else if(disp === 'paralelo') { w = 2.40; l = 5.40; }
-       } else { // Publico
+       } else { 
           if(disp === 'ind') w = 3.00;
           else if(disp === 'cont') w = 2.60;
           else if(disp === 'paralelo') { w = 2.50; l = 6.00; }
        }
        
-       // Calle de Maniobra (Gráfico D aprox)
-       // Simplificación lógica de la tabla gráfica
        let via = 0;
-       if(ang === 0) via = 3.00; // Paralelo
+       if(ang === 0) via = 3.00; 
        else if(ang <= 30) via = 3.00;
        else if(ang <= 45) via = 3.50;
        else if(ang <= 60) via = 4.50;
-       else via = (uso === 'privado') ? 5.40 : 6.00; // 90 grados
+       else via = (uso === 'privado') ? 5.40 : 6.00;
 
-       // Render UI
        document.getElementById('dim_w').innerText = w.toFixed(2);
        document.getElementById('dim_l').innerText = l.toFixed(2);
        document.getElementById('res_via').innerText = via.toFixed(2) + " m";
        
-       // Render Canvas CSS
        const canvas = document.getElementById('pk_canvas');
        canvas.style.transform = `rotate(-${90-ang}deg)`;
-       canvas.style.width = (w * 40) + "px"; // escala visual
-       canvas.style.height = (l * 40) + "px";
+       canvas.style.width = (w * 35) + "px";
+       canvas.style.height = (l * 35) + "px";
     }
 
-    // 3. POZOS DE LUZ (Art. 19)
-    function calcLight() {
-       const h = parseFloat(document.getElementById('pl_h').value);
-       
-       // Fórmula A.010 Vivienda: L = H/3, min 2.20m
-       let L = h / 3;
-       if(L < 2.20) L = 2.20;
-       
-       let Area = L * L; // Asumiendo cuadrado regular
-       
-       document.getElementById('res_pl_lado').innerText = L.toFixed(2) + " m";
-       document.getElementById('res_pl_area').innerText = Area.toFixed(2) + " m²";
-       
-       // Visual Feedback
-       const box = document.getElementById('pl_box');
-       const scale = Math.min(L * 20, 180); // max pixel size
-       box.style.width = scale + "px";
-       box.style.height = scale + "px";
+    // --- CALC 4: DUCTOS ---
+    function calcDucto() {
+        const tipo = document.getElementById('duc_tipo').value;
+        const h = parseFloat(document.getElementById('duc_h').value);
+        
+        let L = 0;
+        let icon = "fa-sun";
+        let color = "text-yellow-500";
+        
+        if(tipo === 'luz') {
+            // Art. 19: H/3 min 2.20
+            L = h / 3;
+            if(L < 2.20) L = 2.20;
+        } else {
+            // Ventilación mecánica (Referencial EM.030)
+            L = 1.20; // Valor std mínimo constructivo referencial
+            icon = "fa-fan";
+            color = "text-slate-500";
+        }
+        
+        const area = L * L;
+        
+        document.getElementById('res_duc_lado').innerText = L.toFixed(2) + " m";
+        document.getElementById('res_duc_area').innerText = area.toFixed(2) + " m²";
+        document.getElementById('visual_l').innerText = L.toFixed(2);
+        
+        // Update Visual
+        const box = document.getElementById('duc_visual');
+        const i = document.getElementById('duc_icon');
+        const scale = Math.min(L * 25, 250);
+        
+        box.style.width = scale + "px";
+        box.style.height = scale + "px";
+        i.className = `fa-regular ${icon} text-4xl ${color} animate-pulse`;
     }
 
     // INIT
     window.onload = function() {
-       // Poblar Select Glosario
+       // Poblar Glosario
        const sel = document.getElementById('termSelector');
        G040_DATA.sort((a,b)=>a.t.localeCompare(b.t)).forEach(x => {
-          let o = document.createElement('option');
-          o.value = x.id; o.text = x.t;
-          sel.add(o);
+          let o = document.createElement('option'); o.value = x.id; o.text = x.t; sel.add(o);
        });
-       
-       // Mostrar Tab por defecto
-       nav('g040');
-       switchTab('stair');
+       // Defaults
+       nav('a010');
+       switchTab('escaleras');
     };
   </script>
 </body>
